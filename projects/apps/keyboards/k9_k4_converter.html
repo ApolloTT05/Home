@@ -73,8 +73,8 @@
 <div class="wrap">
   <a class="back" href="../index.html">← Back to Apps.</a>
   <h1>K9 Max ⇄ K4 HE Layout-Konverter</h1>
-  <div class="sub">Überträgt deine Vial-Belegung anhand der Tastenidentität (Q bleibt Q), nicht anhand der rohen Matrix-Position. Layer-Nummern bleiben unverändert – MO(2), TO(5) etc. müssen NICHT angepasst werden.</div>
-
+   <div class="sub">Überträgt deine Vial-Belegung anhand der Tastenidentität (Q bleibt Q), nicht anhand der rohen Matrix-Position. Layer-Nummern bleiben unverändert – MO(2), TO(5) etc. müssen NICHT angepasst werden.</div>
+ 
   <div class="step">
     <h2><span class="n">0</span>Richtung wählen</h2>
     <div class="layer-tabs" id="dirTabs" style="margin:0;">
@@ -82,15 +82,20 @@
       <button id="dirK4toK9">K4 HE → K9 Max</button>
     </div>
   </div>
-
+ 
   <div class="step">
     <h2><span class="n">1</span><span id="srcLabel">K9 Max</span> Keymap exportieren</h2>
     <p id="srcHint">In Vial (mit angeschlossener K9 Max): oben rechts <b>Settings → Export Keymap</b>. Die <code>.vil</code>-Datei direkt hochladen:</p>
     <input type="file" id="fileInput1" accept=".vil,.json" style="margin-bottom:10px; color:var(--text); font-family:var(--mono); font-size:.82rem;">
     <p style="color:var(--muted); font-size:.8rem;">— oder Inhalt manuell einfügen:</p>
     <textarea id="k9input" placeholder='{"version":1,"uid":...,"layout":[[[...]]], ...}'></textarea>
+    <button id="detectLayersBtn" class="secondary">Layer erkennen</button>
+    <div id="layerSelectWrap" class="hidden" style="margin-top:12px;">
+      <p style="color:var(--muted);">Welche Layer sollen übertragen werden? Abgewählte Layer bleiben im Zielboard komplett unangetastet.</p>
+      <div id="layerCheckboxes" style="display:flex; flex-wrap:wrap; gap:10px;"></div>
+    </div>
   </div>
-
+ 
   <div class="step">
     <h2><span class="n">2</span><span id="refLabel">K4 HE</span> Referenz <span id="refOptional">(optional, empfohlen)</span></h2>
     <p id="refHint">Damit die erzeugte Datei die richtige <code>uid</code> hat und Vial sie akzeptiert: exportiere einmal (auch unverändert) das aktuelle Keymap deiner K4 HE genauso und füge es hier ein. Ohne das geht's auch – dann nutzt du unten die manuelle Tabelle.</p>
@@ -98,13 +103,13 @@
     <p style="color:var(--muted); font-size:.8rem;">— oder Inhalt manuell einfügen:</p>
     <textarea id="k4input" placeholder="Optional: aktuelles K4 HE Export-JSON hier einfügen"></textarea>
   </div>
-
+ 
   <div class="step">
     <h2><span class="n">3</span>Konvertieren</h2>
     <button id="convertBtn">Konvertieren</button>
     <div id="msg" class="msg"></div>
   </div>
-
+ 
   <div id="resultSection" class="step hidden">
     <h2><span class="n">4</span>Ergebnis</h2>
     <p id="downloadHint"></p>
@@ -118,22 +123,22 @@
       <p><b>Hinweis:</b> <span id="extraNoteText"></span></p>
     </div>
   </div>
-
+ 
 </div>
-
+ 
 <script>
 const MAPPING_DATA = {"k9_dims": {"rows": 5, "cols": 14}, "k4_dims": {"rows": 6, "cols": 19}, "mapping": [{"k9": [0, 0], "k4": [1, 0], "label": "Esc"}, {"k9": [0, 1], "k4": [1, 1], "label": "1"}, {"k9": [0, 2], "k4": [1, 2], "label": "2"}, {"k9": [0, 3], "k4": [1, 3], "label": "3"}, {"k9": [0, 4], "k4": [1, 4], "label": "4"}, {"k9": [0, 5], "k4": [1, 5], "label": "5"}, {"k9": [0, 6], "k4": [1, 6], "label": "6"}, {"k9": [0, 7], "k4": [1, 7], "label": "7"}, {"k9": [0, 8], "k4": [1, 8], "label": "8"}, {"k9": [0, 9], "k4": [1, 9], "label": "9"}, {"k9": [0, 10], "k4": [1, 10], "label": "0"}, {"k9": [0, 11], "k4": [1, 11], "label": "-"}, {"k9": [0, 12], "k4": [1, 12], "label": "="}, {"k9": [0, 13], "k4": [1, 14], "label": "Backspace"}, {"k9": [1, 0], "k4": [2, 0], "label": "Tab"}, {"k9": [1, 1], "k4": [2, 1], "label": "Q"}, {"k9": [1, 2], "k4": [2, 2], "label": "W"}, {"k9": [1, 3], "k4": [2, 3], "label": "E"}, {"k9": [1, 4], "k4": [2, 4], "label": "R"}, {"k9": [1, 5], "k4": [2, 5], "label": "T"}, {"k9": [1, 6], "k4": [2, 6], "label": "Y"}, {"k9": [1, 7], "k4": [2, 7], "label": "U"}, {"k9": [1, 8], "k4": [2, 8], "label": "I"}, {"k9": [1, 9], "k4": [2, 9], "label": "O"}, {"k9": [1, 10], "k4": [2, 10], "label": "P"}, {"k9": [1, 11], "k4": [2, 11], "label": "["}, {"k9": [1, 12], "k4": [2, 12], "label": "]"}, {"k9": [1, 13], "k4": [2, 13], "label": "\\"}, {"k9": [2, 0], "k4": [3, 0], "label": "CapsLock"}, {"k9": [2, 1], "k4": [3, 1], "label": "A"}, {"k9": [2, 2], "k4": [3, 2], "label": "S"}, {"k9": [2, 3], "k4": [3, 3], "label": "D"}, {"k9": [2, 4], "k4": [3, 4], "label": "F"}, {"k9": [2, 5], "k4": [3, 5], "label": "G"}, {"k9": [2, 6], "k4": [3, 6], "label": "H"}, {"k9": [2, 7], "k4": [3, 7], "label": "J"}, {"k9": [2, 8], "k4": [3, 8], "label": "K"}, {"k9": [2, 9], "k4": [3, 9], "label": "L"}, {"k9": [2, 10], "k4": [3, 10], "label": ";"}, {"k9": [2, 11], "k4": [3, 11], "label": "'"}, {"k9": [2, 13], "k4": [3, 13], "label": "Enter"}, {"k9": [3, 0], "k4": [4, 0], "label": "LShift"}, {"k9": [3, 2], "k4": [4, 2], "label": "Z"}, {"k9": [3, 3], "k4": [4, 3], "label": "X"}, {"k9": [3, 4], "k4": [4, 4], "label": "C"}, {"k9": [3, 5], "k4": [4, 5], "label": "V"}, {"k9": [3, 6], "k4": [4, 6], "label": "B"}, {"k9": [3, 7], "k4": [4, 7], "label": "N"}, {"k9": [3, 8], "k4": [4, 8], "label": "M"}, {"k9": [3, 9], "k4": [4, 9], "label": ","}, {"k9": [3, 10], "k4": [4, 10], "label": "."}, {"k9": [3, 11], "k4": [4, 11], "label": "/"}, {"k9": [3, 13], "k4": [4, 13], "label": "RShift"}, {"k9": [4, 0], "k4": [5, 0], "label": "LCtrl"}, {"k9": [4, 1], "k4": [5, 1], "label": "LWin"}, {"k9": [4, 2], "k4": [5, 2], "label": "LAlt"}, {"k9": [4, 6], "k4": [5, 6], "label": "Space"}, {"k9": [4, 10], "k4": [5, 10], "label": "RAlt"}, {"k9": [4, 11], "k4": [5, 11], "label": "Fn"}, {"k9": [4, 12], "k4": [5, 12], "label": "Menu"}, {"k9": [4, 13], "k4": [5, 14], "label": "RCtrl"}]};
-
+ 
 let convertedLayers = null; // array of 2D arrays (target dims), for display + download
 let outputObj = null;
 let direction = 'k9tok4'; // or 'k4tok9'
-
+ 
 function showMsg(text, ok){
   const el = document.getElementById('msg');
   el.textContent = text;
   el.className = 'msg ' + (ok ? 'ok' : 'err');
 }
-
+ 
 function makeEmptyLayer(dims, fill){
   const arr = [];
   for(let r=0;r<dims.rows;r++){
@@ -141,7 +146,7 @@ function makeEmptyLayer(dims, fill){
   }
   return arr;
 }
-
+ 
 function setDirection(dir){
   direction = dir;
   document.getElementById('dirK9toK4').classList.toggle('active', dir === 'k9tok4');
@@ -162,19 +167,54 @@ function setDirection(dir){
     document.getElementById('refHint').innerHTML = 'Damit die erzeugte Datei die richtige <code>uid</code> hat und Vial sie akzeptiert: exportiere einmal (auch unverändert) das aktuelle Keymap deiner K9 Max genauso und füge es hier ein. Ohne das geht\'s auch – dann nutzt du unten die manuelle Tabelle.';
   }
 }
-
+ 
 document.getElementById('dirK9toK4').addEventListener('click', () => setDirection('k9tok4'));
 document.getElementById('dirK4toK9').addEventListener('click', () => setDirection('k4tok9'));
-
+ 
+let excludedLayers = new Set(); // layer indices the user unchecked
+ 
+function detectLayers(){
+  const raw = document.getElementById('k9input').value.trim();
+  const wrap = document.getElementById('layerSelectWrap');
+  const box = document.getElementById('layerCheckboxes');
+  if(!raw){ wrap.classList.add('hidden'); return; }
+  let data;
+  try{ data = JSON.parse(raw); }catch(e){ wrap.classList.add('hidden'); return; }
+  if(!data.layout || !Array.isArray(data.layout)){ wrap.classList.add('hidden'); return; }
+ 
+  excludedLayers = new Set();
+  box.innerHTML = '';
+  data.layout.forEach((layer, idx) => {
+    const label = document.createElement('label');
+    label.style.cssText = 'display:flex;align-items:center;gap:5px;background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:5px 10px;cursor:pointer;font-size:.8rem;';
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.checked = true;
+    cb.addEventListener('change', () => {
+      if(cb.checked) excludedLayers.delete(idx);
+      else excludedLayers.add(idx);
+    });
+    label.appendChild(cb);
+    label.appendChild(document.createTextNode('Layer ' + idx));
+    box.appendChild(label);
+  });
+  wrap.classList.remove('hidden');
+}
+ 
+document.getElementById('detectLayersBtn').addEventListener('click', detectLayers);
+ 
 document.getElementById('fileInput1').addEventListener('change', (e) => {
   const file = e.target.files[0];
   if(!file) return;
   const reader = new FileReader();
-  reader.onload = (evt) => { document.getElementById('k9input').value = evt.target.result; };
+  reader.onload = (evt) => {
+    document.getElementById('k9input').value = evt.target.result;
+    detectLayers();
+  };
   reader.onerror = () => showMsg('Datei konnte nicht gelesen werden.', false);
   reader.readAsText(file);
 });
-
+ 
 document.getElementById('fileInput2').addEventListener('change', (e) => {
   const file = e.target.files[0];
   if(!file) return;
@@ -183,27 +223,27 @@ document.getElementById('fileInput2').addEventListener('change', (e) => {
   reader.onerror = () => showMsg('Datei konnte nicht gelesen werden.', false);
   reader.readAsText(file);
 });
-
+ 
 document.getElementById('convertBtn').addEventListener('click', () => {
   const raw = document.getElementById('k9input').value.trim();
   const srcName = direction === 'k9tok4' ? 'K9 Max' : 'K4 HE';
   const refName = direction === 'k9tok4' ? 'K4 HE' : 'K9 Max';
   if(!raw){ showMsg('Bitte zuerst das ' + srcName + ' Export-JSON in Feld 1 einfügen.', false); return; }
-
+ 
   let srcData;
   try{ srcData = JSON.parse(raw); }
   catch(e){ showMsg('Konnte das JSON nicht lesen. Bitte den kompletten Inhalt der .vil-Datei unverändert einfügen.', false); return; }
-
+ 
   if(!srcData.layout || !Array.isArray(srcData.layout)){
     showMsg('Im JSON fehlt das Feld "layout" – ist das wirklich ein Vial-Export?', false); return;
   }
-
+ 
   const srcLayers = srcData.layout;
   const targetDims = direction === 'k9tok4' ? MAPPING_DATA.k4_dims : MAPPING_DATA.k9_dims;
   const fillValue = direction === 'k9tok4' ? 'KC_TRNS' : 'KC_NO';
   const srcKey = direction === 'k9tok4' ? 'k9' : 'k4';
   const tgtKey = direction === 'k9tok4' ? 'k4' : 'k9';
-
+ 
   // Referenz-Config des Zielboards zuerst einlesen (falls vorhanden), damit deren
   // vorhandene Belegung für die Zusatztasten als Basis dient statt sie zu überschreiben
   const refRaw = document.getElementById('k4input').value.trim();
@@ -215,7 +255,7 @@ document.getElementById('convertBtn').addEventListener('click', () => {
     }
   }
   const refLayers = (baseRef && Array.isArray(baseRef.layout)) ? baseRef.layout : null;
-
+ 
   convertedLayers = [];
   srcLayers.forEach((layer, layerIdx) => {
     // Basis: vorhandene Zielboard-Belegung dieses Layers (falls vorhanden), sonst leer
@@ -224,6 +264,11 @@ document.getElementById('convertBtn').addEventListener('click', () => {
       outLayer = refLayers[layerIdx].map(row => row.slice());
     } else {
       outLayer = makeEmptyLayer(targetDims, fillValue);
+    }
+    if(excludedLayers.has(layerIdx)){
+      // Layer bewusst abgewählt: Zielboard-Belegung (bzw. leer) bleibt komplett unangetastet
+      convertedLayers.push(outLayer);
+      return;
     }
     for(const m of MAPPING_DATA.mapping){
       const [sr, sc] = m[srcKey];
@@ -235,23 +280,23 @@ document.getElementById('convertBtn').addEventListener('click', () => {
     }
     convertedLayers.push(outLayer);
   });
-
+ 
   // Falls die Quelle mehr Layer hat als die Referenz, sind für die zusätzlichen
   // Layer keine Zielboard-Werte vorhanden - dort bleibt es beim Standard-Fill (oben bereits gesetzt)
-
+ 
   let uid = srcData.uid;
   if(baseRef && baseRef.uid !== undefined) uid = baseRef.uid;
-
+ 
   outputObj = Object.assign({}, srcData);
   outputObj.layout = convertedLayers;
   outputObj.uid = uid;
   if(outputObj.encoder_layout) delete outputObj.encoder_layout;
-
+ 
   document.getElementById('resultSection').classList.remove('hidden');
   document.getElementById('downloadHint').textContent = baseRef
     ? 'uid übernommen und Zusatztasten aus deiner ' + refName + ' Referenz-Config beibehalten – Import in Vial sollte klappen.'
     : 'Keine ' + refName + ' Referenz angegeben – uid stammt noch vom Quell-Board und Zusatztasten sind leer/transparent. Nutze notfalls die Tabelle unten zum manuellen Eintragen.';
-
+ 
   const extraNote = document.getElementById('extraNoteText');
   if(direction === 'k9tok4'){
     extraNote.textContent = baseRef
@@ -260,13 +305,15 @@ document.getElementById('convertBtn').addEventListener('click', () => {
   } else {
     extraNote.textContent = 'Die K9 Max hat gar keine Zusatztasten (F-Reihe, Nummernblock, Pfeiltasten) – diese Werte aus der K4-Config werden beim Umwandeln einfach nicht mit übertragen, es geht nichts anderes verloren.';
   }
-
+ 
   document.getElementById('codeColHeader').textContent = 'Keycode auf der ' + refName;
-
+ 
   buildTabs();
-  showMsg('Konvertiert: ' + convertedLayers.length + ' Layer, 61 Tasten pro Layer übertragen.', true);
+  const skippedCount = excludedLayers.size;
+  const skippedNote = skippedCount > 0 ? (' (' + skippedCount + ' Layer übersprungen: ' + Array.from(excludedLayers).sort((a,b)=>a-b).join(', ') + ')') : '';
+  showMsg('Konvertiert: ' + convertedLayers.length + ' Layer, 61 Tasten pro Layer übertragen.' + skippedNote, true);
 });
-
+ 
 function buildTabs(){
   const tabWrap = document.getElementById('layerTabs');
   tabWrap.innerHTML = '';
@@ -283,7 +330,7 @@ function buildTabs(){
   });
   renderLayerTable(0);
 }
-
+ 
 function renderLayerTable(idx){
   const tbody = document.getElementById('layerTable');
   tbody.innerHTML = '';
@@ -296,7 +343,7 @@ function renderLayerTable(idx){
     tbody.appendChild(tr_el);
   }
 }
-
+ 
 document.getElementById('downloadBtn').addEventListener('click', () => {
   if(!outputObj){ return; }
   const blob = new Blob([JSON.stringify(outputObj, null, 2)], {type: 'application/json'});
