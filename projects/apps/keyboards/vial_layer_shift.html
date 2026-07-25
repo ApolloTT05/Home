@@ -34,10 +34,22 @@
   td.old{color:var(--accent2); font-weight:600;}
   .changed{outline:1px solid var(--accent); border-radius:4px;}
   code{background:var(--panel2); padding:1px 5px; border-radius:4px; color:var(--accent2);}
+  .back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--text-muted);
+    text-decoration: none;
+    margin-top: 48px;
+  }
+  .back:hover { color: var(--key-face); }
 </style>
 </head>
 <body>
 <div class="wrap">
+  <a class="back" href="../index.html">← Back to Apps.</a>
   <h1>Vial Layer-Verschieber</h1>
   <div class="sub">Verschiebt oder tauscht Layer in einer Vial-Keymap-Datei. Alle Referenzen auf die betroffenen Layer (MO, TO, TG, TT, DF, OSL, LT, LM – auch in Macros, Tap Dance, Combos, Key Overrides) werden automatisch mit angepasst. Funktioniert für jedes Vial-Board.</div>
 
