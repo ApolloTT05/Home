@@ -204,9 +204,27 @@ document.getElementById('convertBtn').addEventListener('click', () => {
   const srcKey = direction === 'k9tok4' ? 'k9' : 'k4';
   const tgtKey = direction === 'k9tok4' ? 'k4' : 'k9';
 
+  // Referenz-Config des Zielboards zuerst einlesen (falls vorhanden), damit deren
+  // vorhandene Belegung für die Zusatztasten als Basis dient statt sie zu überschreiben
+  const refRaw = document.getElementById('k4input').value.trim();
+  let baseRef = null;
+  if(refRaw){
+    try{ baseRef = JSON.parse(refRaw); }
+    catch(e){
+      showMsg('Das ' + refName + ' Referenz-JSON in Feld 2 konnte nicht gelesen werden – wird ignoriert.', false);
+    }
+  }
+  const refLayers = (baseRef && Array.isArray(baseRef.layout)) ? baseRef.layout : null;
+
   convertedLayers = [];
-  for(const layer of srcLayers){
-    const outLayer = makeEmptyLayer(targetDims, fillValue);
+  srcLayers.forEach((layer, layerIdx) => {
+    // Basis: vorhandene Zielboard-Belegung dieses Layers (falls vorhanden), sonst leer
+    let outLayer;
+    if(refLayers && refLayers[layerIdx]){
+      outLayer = refLayers[layerIdx].map(row => row.slice());
+    } else {
+      outLayer = makeEmptyLayer(targetDims, fillValue);
+    }
     for(const m of MAPPING_DATA.mapping){
       const [sr, sc] = m[srcKey];
       const [tr, tc] = m[tgtKey];
@@ -216,20 +234,13 @@ document.getElementById('convertBtn').addEventListener('click', () => {
       outLayer[tr][tc] = val;
     }
     convertedLayers.push(outLayer);
-  }
+  });
 
-  // Try to build a full output object, reusing target uid if provided
+  // Falls die Quelle mehr Layer hat als die Referenz, sind für die zusätzlichen
+  // Layer keine Zielboard-Werte vorhanden - dort bleibt es beim Standard-Fill (oben bereits gesetzt)
+
   let uid = srcData.uid;
-  const refRaw = document.getElementById('k4input').value.trim();
-  let baseRef = null;
-  if(refRaw){
-    try{
-      baseRef = JSON.parse(refRaw);
-      if(baseRef.uid !== undefined) uid = baseRef.uid;
-    }catch(e){
-      showMsg('Das ' + refName + ' Referenz-JSON in Feld 2 konnte nicht gelesen werden – wird ignoriert, uid evtl. falsch.', false);
-    }
-  }
+  if(baseRef && baseRef.uid !== undefined) uid = baseRef.uid;
 
   outputObj = Object.assign({}, srcData);
   outputObj.layout = convertedLayers;
@@ -238,12 +249,14 @@ document.getElementById('convertBtn').addEventListener('click', () => {
 
   document.getElementById('resultSection').classList.remove('hidden');
   document.getElementById('downloadHint').textContent = baseRef
-    ? 'uid wurde aus deinem ' + refName + ' Referenz-Export übernommen – Import in Vial sollte klappen.'
-    : 'Keine ' + refName + ' Referenz angegeben – uid stammt noch vom Quell-Board. Vial könnte den Import ablehnen. Nutze notfalls die Tabelle unten zum manuellen Eintragen.';
+    ? 'uid übernommen und Zusatztasten aus deiner ' + refName + ' Referenz-Config beibehalten – Import in Vial sollte klappen.'
+    : 'Keine ' + refName + ' Referenz angegeben – uid stammt noch vom Quell-Board und Zusatztasten sind leer/transparent. Nutze notfalls die Tabelle unten zum manuellen Eintragen.';
 
   const extraNote = document.getElementById('extraNoteText');
   if(direction === 'k9tok4'){
-    extraNote.textContent = 'F-Reihe, PrtSc/ScrLk/Pause, Einfg/Pos1/Bild↑/Bild↓/Ende, Pfeiltasten und der komplette Nummernblock existieren auf der K9 Max nicht und bleiben auf KC_TRNS stehen – frei belegbar.';
+    extraNote.textContent = baseRef
+      ? 'F-Reihe, PrtSc/ScrLk/Pause, Navigationscluster und Nummernblock wurden unverändert aus deiner hochgeladenen K4 HE Config übernommen, da die K9 Max dafür keine Entsprechung hat.'
+      : 'F-Reihe, PrtSc/ScrLk/Pause, Einfg/Pos1/Bild↑/Bild↓/Ende, Pfeiltasten und der komplette Nummernblock existieren auf der K9 Max nicht und bleiben auf KC_TRNS stehen – frei belegbar.';
   } else {
     extraNote.textContent = 'Die K9 Max hat gar keine Zusatztasten (F-Reihe, Nummernblock, Pfeiltasten) – diese Werte aus der K4-Config werden beim Umwandeln einfach nicht mit übertragen, es geht nichts anderes verloren.';
   }
