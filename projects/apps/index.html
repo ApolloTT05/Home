@@ -1,1 +1,233 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Projekte — Übersicht</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #14151a;
+    --surface: #1c1e26;
+    --surface-raised: #23252f;
+    --key-face: #e8a33d;
+    --key-face-dark: #c8871f;
+    --text: #f0ede6;
+    --text-muted: #8b8d98;
+    --border: #2e303c;
+  }
 
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+
+  .wrap {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* ---- HERO ---- */
+
+  header.hero {
+    padding: 96px 0 64px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .prompt-line {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: var(--key-face);
+    letter-spacing: 0.02em;
+    margin: 0 0 20px;
+  }
+
+  .prompt-line::before {
+    content: "❯ ";
+    color: var(--text-muted);
+  }
+
+  h1 {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 800;
+    font-size: clamp(32px, 5vw, 52px);
+    line-height: 1.1;
+    margin: 0 0 16px;
+    letter-spacing: -0.02em;
+  }
+
+  h1 .accent { color: var(--key-face); }
+
+  .subtitle {
+    color: var(--text-muted);
+    font-size: 17px;
+    max-width: 520px;
+    margin: 0;
+  }
+
+  /* ---- SECTION LABEL ---- */
+
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-muted);
+    margin: 64px 0 24px;
+  }
+
+  /* ---- KEYCAP GRID ---- */
+
+  .keycap-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+    padding-bottom: 96px;
+  }
+
+  .keycap {
+    position: relative;
+    display: block;
+    text-decoration: none;
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 22px 20px 20px;
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.03) inset,
+      0 6px 0 var(--surface-raised),
+      0 8px 14px rgba(0,0,0,0.35);
+    transform: translateY(0);
+    transition: transform 120ms ease, box-shadow 120ms ease;
+  }
+
+  .keycap:hover, .keycap:focus-visible {
+    transform: translateY(3px);
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.03) inset,
+      0 3px 0 var(--surface-raised),
+      0 5px 10px rgba(0,0,0,0.35);
+  }
+
+  .keycap:active {
+    transform: translateY(6px);
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.03) inset,
+      0 0px 0 var(--surface-raised),
+      0 2px 6px rgba(0,0,0,0.3);
+  }
+
+  .keycap:focus-visible {
+    outline: 2px solid var(--key-face);
+    outline-offset: 2px;
+  }
+
+  .keycap .glyph {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 7px;
+    background: var(--key-face);
+    color: #1c1200;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 14px;
+  }
+
+  .keycap h2 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0 0 6px;
+  }
+
+  .keycap p {
+    font-size: 13.5px;
+    color: var(--text-muted);
+    margin: 0;
+  }
+
+  /* placeholder card for adding new pages */
+  .keycap.add-new {
+    background: transparent;
+    border: 1px dashed var(--border);
+    box-shadow: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    min-height: 118px;
+  }
+  .keycap.add-new:hover { transform: none; }
+
+  footer {
+    padding: 32px 0 64px;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 13px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+</style>
+</head>
+<body>
+
+  <div class="wrap">
+    <header class="hero">
+      <p class="prompt-line">whoami</p>
+      <h1>Meine Projekte<span class="accent">.</span></h1>
+      <p class="subtitle">
+        Sammlung aus Lern-Tools, Trackern und kleinen Experimenten.
+        Jede Kachel führt zu einer eigenen Unterseite.
+      </p>
+    </header>
+
+    <p class="section-label">// Unterseiten</p>
+
+    <div class="keycap-grid">
+
+      <a class="keycap" href="seite1.html">
+        <span class="glyph">01</span>
+        <h2>Seite 1</h2>
+        <p>Kurzbeschreibung hier ersetzen.</p>
+      </a>
+
+      <a class="keycap" href="seite2.html">
+        <span class="glyph">02</span>
+        <h2>Seite 2</h2>
+        <p>Kurzbeschreibung hier ersetzen.</p>
+      </a>
+
+      <div class="keycap add-new">
+        + neue Kachel &amp; Datei hinzufügen
+      </div>
+
+    </div>
+
+    <footer>
+      github.io — zuletzt aktualisiert manuell
+    </footer>
+  </div>
+
+</body>
+</html>
